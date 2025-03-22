@@ -82,8 +82,7 @@ const AppointmentBooking = () => {
           doctorId: selectedDoctor,
           date: selectedDate,
           time: selectedTime,
-          reason
-        },
+          reason        },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`

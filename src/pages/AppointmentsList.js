@@ -206,14 +206,14 @@ const AppointmentsList = () => {
                 <tr key={appointment._id} className="border-b border-gray-200 hover:bg-gray-50">
                   {userRole === "doctor" && (
                     <td className="py-3 px-6 text-left">
-                      <div className="font-medium">{appointment.user.name}</div>
-                      <div className="text-xs text-gray-500">{appointment.user.email}</div>
+                      <div className="font-medium">{appointment.user?.name || "Unknown"}</div>
+                      <div className="text-xs text-gray-500">{appointment.user?.email || "No email"}</div>
                     </td>
                   )}
                   {userRole === "user" && (
                     <td className="py-3 px-6 text-left">
-                      <div className="font-medium">{appointment.doctor.name}</div>
-                      <div className="text-xs text-gray-500">{appointment.doctor.specialization}</div>
+                      <div className="font-medium">{appointment.doctor?.name || "Unknown"}</div>
+                      <div className="text-xs text-gray-500">{appointment.doctor?.specialization || "No specialization"}</div>
                     </td>
                   )}
                   <td className="py-3 px-6 text-left">{formatDate(appointment.date)}</td>

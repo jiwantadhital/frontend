@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -19,6 +20,7 @@ const Dashboard = () => {
           }
         });
         setUserInfo(response.data);
+        setIsAdmin(response.data.role === "admin");
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch user details. " + (err.response?.data?.message || err.message));
@@ -49,7 +51,7 @@ const Dashboard = () => {
       <div className="text-red-500 text-lg font-medium mb-2">Error</div>
       <p className="text-gray-700">{error}</p>
       <button 
-        onClick={() => window.location.reload()} 
+        onClick={() => window.location.reload()}
         className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
       >
         Try Again
@@ -68,128 +70,181 @@ const Dashboard = () => {
               </span>
               Dashboard
             </h2>
-            <button 
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition duration-200 flex items-center"
-            >
-              <FaSignOutAlt className="mr-2" /> Logout
-            </button>
-          </div>
-        </div>
-        
-        {userInfo && (
-          <div className="bg-white p-6 rounded-xl shadow-md mb-6 border-l-4 border-blue-500 transform hover:scale-[1.01] transition-transform duration-300">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">
-              Welcome, {userInfo.name}!
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-blue-50 p-3 rounded-lg flex items-center">
-                <div className="bg-blue-100 p-2 rounded-md mr-3">
-                  <FaUser className="text-blue-700" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 font-medium">EMAIL</p>
-                  <p className="text-gray-700 font-medium">{userInfo.email}</p>
-                </div>
-              </div>
-              <div className="bg-indigo-50 p-3 rounded-lg flex items-center">
-                <div className="bg-indigo-100 p-2 rounded-md mr-3">
-                  <FaUserMd className="text-indigo-700" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 font-medium">ROLE</p>
-                  <p className="text-gray-700 font-medium capitalize">{userInfo.role}</p>
-                </div>
-              </div>
-              {userInfo.role === "doctor" && (
-                <div className="bg-purple-50 p-3 rounded-lg flex items-center">
-                  <div className="bg-purple-100 p-2 rounded-md mr-3">
-                    <FaUserMd className="text-purple-700" />
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500 font-medium">SPECIALIZATION</p>
-                    <p className="text-gray-700 font-medium">{userInfo.specialization}</p>
-                  </div>
-                </div>
+            <div className="flex items-center space-x-4">
+              <div className="text-sm font-medium text-gray-500">Welcome, {userInfo?.name}</div>
+              {isAdmin && (
+                <Link 
+                  to="/admin" 
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700"
+                >
+                  Admin Panel
+                </Link>
               )}
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+              >
+                <FaSignOutAlt className="mr-2 -ml-1 h-4 w-4" />
+                Logout
+              </button>
             </div>
           </div>
-        )}
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Link 
-            to="/appointments" 
-            className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border-t-4 border-blue-500 group"
-          >
-            <div className="flex items-center mb-4">
-              <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors duration-300">
-                <FaCalendarAlt className="h-6 w-6 text-blue-600" />
-              </div>
-              <h3 className="ml-4 text-xl font-semibold text-gray-800">
-                {userInfo?.role === "doctor" ? "Manage Patient Appointments" : "My Appointments"}
-              </h3>
-            </div>
-            <p className="text-gray-600 ml-16">
-              {userInfo?.role === "doctor" 
-                ? "View and manage your patients' appointments" 
-                : "View all your scheduled appointments"}
-            </p>
-            <div className="mt-4 ml-16 text-blue-600 font-medium group-hover:underline">
-              View details →
-            </div>
-          </Link>
           
-          {userInfo?.role === "doctor" ? (
-            <Link 
-              to="/doctor/schedule" 
-              className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border-t-4 border-green-500 group"
-            >
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors duration-300">
-                  <FaClock className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="ml-4 text-xl font-semibold text-gray-800">Manage Your Schedule</h3>
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {/* User's upcoming appointments or doctor's appointments summary */}
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow p-5 text-white">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold mb-2">
+                  {userInfo?.role === "doctor" ? "Today's Schedule" : "Upcoming Appointments"} 
+                </h3>
+                <FaCalendarAlt className="h-6 w-6 opacity-75" />
               </div>
-              <p className="text-gray-600 ml-16">Set your available time slots for appointments</p>
-              <div className="mt-4 ml-16 text-green-600 font-medium group-hover:underline">
-                View details →
+              <p className="text-3xl font-bold mb-2">
+                {userInfo?.role === "doctor" ? userInfo?.todayAppointments || 0 : userInfo?.upcomingAppointments || 0}
+              </p>
+              <p className="text-sm opacity-75">
+                {userInfo?.role === "doctor" 
+                  ? "Appointments scheduled today" 
+                  : "Scheduled in the next 7 days"}
+              </p>
+            </div>
+
+            {/* Quick actions */}
+            <div className="bg-white rounded-lg shadow p-5 border border-gray-100">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Quick Actions</h3>
+                <FaClock className="h-6 w-6 text-blue-500" />
               </div>
-            </Link>
-          ) : (
-            <Link 
-              to="/appointments/book" 
-              className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border-t-4 border-green-500 group"
-            >
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors duration-300">
-                  <FaCalendarAlt className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="ml-4 text-xl font-semibold text-gray-800">Book Appointment</h3>
+              
+              {userInfo?.role === "doctor" ? (
+                <Link 
+                  to="/doctor/schedule"
+                  className="block w-full text-center py-2 px-4 border border-blue-500 rounded-md text-blue-600 hover:bg-blue-50 mb-3"
+                >
+                  Manage Schedule
+                </Link>
+              ) : (
+                <Link 
+                  to="/appointments/book"
+                  className="block w-full text-center py-2 px-4 border border-blue-500 rounded-md text-blue-600 hover:bg-blue-50 mb-3"
+                >
+                  Book Appointment
+                </Link>
+              )}
+              
+              <Link 
+                to="/appointments"
+                className="block w-full text-center py-2 px-4 bg-blue-600 rounded-md text-white hover:bg-blue-700"
+              >
+                View {userInfo?.role === "doctor" ? "Patient" : "My"} Appointments
+              </Link>
+            </div>
+
+            {/* Profile Summary */}
+            <div className="bg-gray-50 rounded-lg shadow p-5 border border-gray-100">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">Profile</h3>
+                <FaUserMd className="h-6 w-6 text-blue-500" />
               </div>
-              <p className="text-gray-600 ml-16">Schedule a new appointment with a doctor</p>
-              <div className="mt-4 ml-16 text-green-600 font-medium group-hover:underline">
-                Book now →
+              
+              <div className="space-y-2">
+                <p className="text-sm"><span className="font-medium text-gray-500">Name:</span> {userInfo?.name}</p>
+                <p className="text-sm"><span className="font-medium text-gray-500">Email:</span> {userInfo?.email}</p>
+                <p className="text-sm">
+                  <span className="font-medium text-gray-500">Role:</span> 
+                  <span className="capitalize">{userInfo?.role}</span>
+                </p>
+                {userInfo?.role === "doctor" && userInfo?.specialization && (
+                  <p className="text-sm">
+                    <span className="font-medium text-gray-500">Specialization:</span> 
+                    {userInfo.specialization}
+                  </p>
+                )}
               </div>
-            </Link>
-          )}
-          
-          {userInfo?.role === "admin" && (
-            <Link 
-              to="/admin/users" 
-              className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 border-t-4 border-purple-500 group"
-            >
-              <div className="flex items-center mb-4">
-                <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors duration-300">
-                  <FaUser className="h-6 w-6 text-purple-600" />
-                </div>
-                <h3 className="ml-4 text-xl font-semibold text-gray-800">Manage Users</h3>
+              
+              <button
+                className="mt-4 w-full text-center py-2 px-4 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100"
+              >
+                Update Profile
+              </button>
+            </div>
+          </div>
+
+          {/* Recent Appointments */}
+          <div className="mt-8">
+            <h3 className="text-xl font-semibold text-gray-800 mb-4">
+              Recent {userInfo?.role === "doctor" ? "Patient" : ""} Appointments
+            </h3>
+            
+            {userInfo?.recentAppointments?.length > 0 ? (
+              <div className="bg-white overflow-hidden rounded-lg border border-gray-200">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {userInfo?.role === "doctor" ? "Patient" : "Doctor"}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date & Time
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {userInfo?.recentAppointments?.map((appointment) => (
+                      <tr key={appointment.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">
+                            {userInfo?.role === "doctor" ? appointment.patientName : appointment.doctorName}
+                          </div>
+                          {userInfo?.role === "doctor" && (
+                            <div className="text-xs text-gray-500">{appointment.patientEmail}</div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{appointment.date}</div>
+                          <div className="text-xs text-gray-500">{appointment.time}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            appointment.status === 'completed' 
+                              ? 'bg-green-100 text-green-800' 
+                              : appointment.status === 'cancelled' 
+                                ? 'bg-red-100 text-red-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {appointment.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <Link to={`/appointments/${appointment.id}`} className="text-blue-600 hover:text-blue-900">
+                            View
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <p className="text-gray-600 ml-16">View and manage all system users</p>
-              <div className="mt-4 ml-16 text-purple-600 font-medium group-hover:underline">
-                Manage now →
+            ) : (
+              <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
+                <p className="text-gray-500">No recent appointments found.</p>
+                {userInfo?.role !== "doctor" && (
+                  <Link 
+                    to="/appointments/book"
+                    className="mt-2 inline-block text-blue-600 hover:text-blue-800"
+                  >
+                    Book your first appointment →
+                  </Link>
+                )}
               </div>
-            </Link>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

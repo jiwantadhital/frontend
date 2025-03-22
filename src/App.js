@@ -10,6 +10,13 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import DoctorSchedule from "./pages/DoctorSchedule";
 import AppointmentDetail from "./pages/AppointmentDetail";
 import AuthenticatedRoute from "./components/AuthenticatedRoute";
+import AdminRoute from "./components/AdminRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUserManagement from "./pages/AdminUserManagement";
+import AdminDoctorManagement from "./pages/AdminDoctorManagement";
+import AdminAddDoctor from "./pages/AdminAddDoctor";
+import AdminAddUser from "./pages/AdminAddUser";
+import AdminAppointmentManagement from "./pages/AdminAppointmentManagement";
 
 function App() {
   return (
@@ -70,7 +77,58 @@ function App() {
             </ProtectedRoute>
           } 
         />
-        <Route path="/" element={
+        
+        {/* Admin Routes */}
+        <Route 
+          path="/admin" 
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/users" 
+          element={
+            <AdminRoute>
+              <AdminUserManagement />
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/doctors" 
+          element={
+            <AdminRoute>
+              <AdminDoctorManagement />
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/doctors/new" 
+          element={
+            <AdminRoute>
+              <AdminAddDoctor />
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/users/new" 
+          element={
+            <AdminRoute>
+              <AdminAddUser />
+            </AdminRoute>
+          } 
+        />
+        <Route 
+          path="/admin/appointments" 
+          element={
+            <AdminRoute>
+              <AdminAppointmentManagement />
+            </AdminRoute>
+          } 
+        />
+        
+        <Route path="/home" element={
           <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
             <header className="p-6 flex flex-col items-center">
               <img src={logo} className="h-32 w-32 animate-spin" alt="logo" />
